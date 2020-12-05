@@ -121,7 +121,7 @@ def main(_):
 	sess.run(iterator.initializer, feed_dict = {images_placeholder: images,
 											labels_placeholder: labels})
 
-	for i in range(5000):
+	for i in range(200):
 		# sess.run(iterator.initializer)
 		data = sess.run(iterator.get_next())
 		batch_labels = data[1]
@@ -135,9 +135,22 @@ def main(_):
 			print('step %d, training accuracy %g' % (i, train_accuracy))
 		sess.run(train_step, feed_dict={x:	batch_examples, y_: batch_labels, keep_prob: 0.5})
 
-	# Test trained model
-	print(sess.run(accuracy, feed_dict={x: images,
-	                                    y_: labels, keep_prob: 1.0}))
+
+	# Printing the predictions for each 
+	c_preds = correct_prediction.eval(feed_dict={x: images, y_: labels, keep_prob: 1.0})
+	
+    def char_position(letter):
+        return ord(letter) - 97
+
+    def pos_to_char(pos):
+        return chr(pos + 97)
+
+    for itr, cp in enumerate(c_preds):
+        c_accs = accuracy.eval(feed_dict={x: images[itr: itr+1] ,y_: labels[itr: itr+1], keep_prob: 0.7})
+        prediction=tf.argmax(y,1)
+        pred = prediction.eval(feed_dict={x: images[itr: itr+1]})
+        
+        print(f"error: {1 - c_accs}\n. Original: {pos_to_char(labels[itr].tolist().index(1))}, Prediction: {pos_to_char(pred[0])}")print(
 
 if __name__ == '__main__':
-  tf.app.run(main=main, argv=[])
+  tf.app.run()
